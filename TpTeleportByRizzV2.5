@@ -1,0 +1,195 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui", PlayerGui)
+screenGui.Name = "TeleportGui"
+screenGui.ResetOnSpawn = false
+
+-- LOADING FRAME
+local loadingFrame = Instance.new("Frame", screenGui)
+loadingFrame.Size = UDim2.new(0, 400, 0, 180)
+loadingFrame.Position = UDim2.new(0.5, -200, 0.45, 0)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+loadingFrame.Active = true
+loadingFrame.Draggable = true
+
+local loadingText = Instance.new("TextLabel", loadingFrame)
+loadingText.Size = UDim2.new(1, 0, 0.5, 0)
+loadingText.Text = "Initializing Assets..."
+loadingText.TextColor3 = Color3.new(1, 1, 1)
+loadingText.BackgroundTransparency = 1
+loadingText.Font = Enum.Font.SourceSansBold
+loadingText.TextScaled = true
+
+local loadingPercent = Instance.new("TextLabel", loadingFrame)
+loadingPercent.Size = UDim2.new(1, 0, 0.5, 0)
+loadingPercent.Position = UDim2.new(0, 0, 0.5, 0)
+loadingPercent.Text = "Loading 0%"
+loadingPercent.TextColor3 = Color3.new(1, 1, 1)
+loadingPercent.BackgroundTransparency = 1
+loadingPercent.Font = Enum.Font.SourceSans
+loadingPercent.TextScaled = true
+
+local skipBtn = Instance.new("TextButton", loadingFrame)
+skipBtn.Size = UDim2.new(0, 100, 0, 35)
+skipBtn.Position = UDim2.new(0.5, -50, 1, -35)
+skipBtn.Text = "Skip"
+skipBtn.Visible = false
+skipBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+skipBtn.TextColor3 = Color3.new(1, 1, 1)
+skipBtn.Font = Enum.Font.SourceSansBold
+skipBtn.TextScaled = true
+
+-- MAIN FRAME
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 200, 0, 170)
+mainFrame.Position = UDim2.new(0.5, -100, 0.4, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Visible = false
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+local input = Instance.new("TextBox", mainFrame)
+input.Size = UDim2.new(0.9, 0, 0, 30)
+input.Position = UDim2.new(0.05, 0, 0.2, 0)
+input.PlaceholderText = "Masukkan Username"
+input.Text = ""
+input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+input.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local teleportBtn = Instance.new("TextButton", mainFrame)
+teleportBtn.Size = UDim2.new(0.9, 0, 0, 30)
+teleportBtn.Position = UDim2.new(0.05, 0, 0.45, 0)
+teleportBtn.Text = "Teleport"
+teleportBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+teleportBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local madeBy = Instance.new("TextLabel", mainFrame)
+madeBy.Size = UDim2.new(1, 0, 0, 20)
+madeBy.Position = UDim2.new(0, 0, 1, -20)
+madeBy.Text = "MadeByRizz"
+madeBy.BackgroundTransparency = 1
+madeBy.TextColor3 = Color3.fromRGB(255, 255, 255)
+madeBy.Font = Enum.Font.SourceSansBold
+madeBy.TextScaled = true
+
+-- MINIMIZE
+local minimizeBtn = Instance.new("TextButton", mainFrame)
+minimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+minimizeBtn.Position = UDim2.new(1, -30, 0, 5)
+minimizeBtn.Text = "X"
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- HOVER MINIMIZE
+minimizeBtn.MouseEnter:Connect(function()
+	minimizeBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+end)
+minimizeBtn.MouseLeave:Connect(function()
+	minimizeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+end)
+
+-- CLOSE ALL
+local closeAllBtn = Instance.new("TextButton", mainFrame)
+closeAllBtn.Size = UDim2.new(0, 25, 0, 25)
+closeAllBtn.Position = UDim2.new(0, 5, 0, 5)
+closeAllBtn.Text = "⨉"
+closeAllBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+closeAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeAllBtn.Font = Enum.Font.SourceSansBold
+closeAllBtn.TextScaled = true
+
+-- MAXIMIZE BUTTON
+local maximizeBtn = Instance.new("TextButton", screenGui)
+maximizeBtn.Size = UDim2.new(0, 40, 0, 40)
+maximizeBtn.Position = UDim2.new(0.5, 100, 0.4, -70)
+maximizeBtn.Text = "+"
+maximizeBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+maximizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+maximizeBtn.Font = Enum.Font.SourceSansBold
+maximizeBtn.TextScaled = true
+maximizeBtn.Active = true
+maximizeBtn.Draggable = true
+maximizeBtn.Visible = false
+
+-- HOVER MAXIMIZE
+maximizeBtn.MouseEnter:Connect(function()
+	maximizeBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+end)
+maximizeBtn.MouseLeave:Connect(function()
+	maximizeBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+end)
+
+-- LOADING FUNCTION
+task.spawn(function()
+	for i = 1, 100 do
+		loadingPercent.Text = "Loading " .. i .. "%"
+		if i == 50 then
+			skipBtn.Visible = true
+		end
+		task.wait(0.03)
+	end
+	loadingText.Text = "Completed!"
+	task.wait(0.8)
+	loadingFrame.Visible = false
+	mainFrame.Visible = true
+end)
+
+skipBtn.MouseButton1Click:Connect(function()
+	loadingFrame.Visible = false
+	mainFrame.Visible = true
+end)
+
+-- TELEPORT
+teleportBtn.MouseButton1Click:Connect(function()
+	local name = input.Text
+	local target = Players:FindFirstChild(name)
+	if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(2, 0, 0)
+		end
+	end
+end)
+
+-- MINIMIZE ANIMASI
+minimizeBtn.MouseButton1Click:Connect(function()
+	local shrink = TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+		Size = UDim2.new(0, 0, 0, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 0)
+	})
+	shrink:Play()
+	shrink.Completed:Connect(function()
+		mainFrame.Visible = false
+		maximizeBtn.Visible = true
+	end)
+end)
+
+-- MAXIMIZE + JELLY EFFECT
+maximizeBtn.MouseButton1Click:Connect(function()
+	mainFrame.Size = UDim2.new(0, 0, 0, 0)
+	mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	mainFrame.Visible = true
+	maximizeBtn.Visible = false
+
+	local overshoot = TweenService:Create(mainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 220, 0, 190),
+		Position = UDim2.new(0.5, -110, 0.4, -10)
+	})
+
+	local settle = TweenService:Create(mainFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 200, 0, 170),
+		Position = UDim2.new(0.5, -100, 0.4, 0)
+	})
+
+	overshoot:Play()
+	overshoot.Completed:Connect(function()
+		settle:Play()
+	end)
+end)
+
+-- CLOSE ALL
+closeAllBtn.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
